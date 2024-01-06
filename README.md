@@ -25,3 +25,9 @@ Use los siguientes componentes para construir el circuito mínimo:
 - Un IC CH9141K.
 - Oscilador externo de 32MHz 10PPM y 12pF.
 - Dos capacitores 2.2 uF.
+
+## Proyectos relacionados
+
+- [CH334 - HUB USB 2.0](https://github.com/nstrappazzonc/CH334)
+- [CH340 - USB 2.0 to Serial](https://github.com/nstrappazzonc/CH340)
+- [CH552 - 8-bits MCU - 8051](https://github.com/nstrappazzonc/CH552)
