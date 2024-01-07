@@ -8,7 +8,7 @@ Existen diferentes formas de conectar el Bluetooth, en este repositorio nos cent
 
 Podrá usar el IC para conectarse directamente a un PC o móvil, vea los siguientes [ejemplos](https://github.com/openwch/ch9141).
 
-Puedes conseguir los IC o una placa de pruebas en la tienda oficial de [AliExpress](https://wchofficialstore.es.aliexpress.com/store/1100367542) o en [JLCMC](https://jlcmc.com).
+Puedes conseguir los IC o una placa de pruebas en la tienda oficial de [AliExpress](https://wchofficialstore.es.aliexpress.com/store/1100367542) o en [LCSC](https://www.lcsc.com).
 
 De momento nos vamos a centrar en él [CH9141K](https://www.wch-ic.com/products/CH9141.html) que tiene unas prestaciones muy versátiles, entre ellas destacan las siguientes:
 
