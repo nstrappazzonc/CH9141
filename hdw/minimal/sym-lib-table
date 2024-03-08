@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "Library")(type "KiCad")(uri "${KIPRJMOD}/Library.kicad_sym")(options "")(descr ""))
+  (lib (name "ch334u")(type "KiCad")(uri "/Users/nsc/Library/Mobile Documents/com~apple~CloudDocs/kicad/Library/ch334u.kicad_sym")(options "")(descr ""))
+)
