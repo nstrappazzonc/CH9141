@@ -1,0 +1,6 @@
+Designator,Footprint,Quantity,Value,LCSC Part #
+AE1,Texas_SWRA117D_2.4GHz_Right,1,Antenna,
+"C1, C2",C1206,2,1uF,
+J1,PinHeader_1x04_P2.54mm_Vertical,1,Conn_01x04,
+U1,ESSOP-10,1,CH9141K,
+Y1,Crystal_SMD_5032-2Pin_5.0x3.2mm_HandSoldering,1,32M,
