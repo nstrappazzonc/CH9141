@@ -1,4 +1,6 @@
 (sym_lib_table
+  (version 7)
   (lib (name "Library")(type "KiCad")(uri "${KIPRJMOD}/Library.kicad_sym")(options "")(descr ""))
   (lib (name "ch334u")(type "KiCad")(uri "/Users/nsc/Library/Mobile Documents/com~apple~CloudDocs/kicad/Library/ch334u.kicad_sym")(options "")(descr ""))
+  (lib (name "ch9141k")(type "KiCad")(uri "/Users/nsc/go/src/github.com/nstrappazzonc/KiCadFootprint/ch9141k.kicad_sym")(options "")(descr ""))
 )
