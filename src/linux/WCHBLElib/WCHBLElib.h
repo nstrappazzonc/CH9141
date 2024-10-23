@@ -17,7 +17,6 @@ typedef struct {
 	uuid_t    uuid;             
 } GattPrimaryService;
 
-
 typedef struct {
 	uint16_t  handle;        
 	uint8_t   properties;    
