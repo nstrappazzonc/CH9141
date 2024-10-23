@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -26,10 +27,10 @@ int main() {
 	scanDevices();
 	connectToDevice("50:54:7B:69:49:65");
 	
-	versionOfDevice();
+	//versionOfDevice();
 	
-    discoverServices();
-    writeToDevice();
+    //discoverServices();
+    //writeToDevice();
     disconnectFromDevice();
 
     return 0;
@@ -37,8 +38,16 @@ int main() {
 
 void scanDevices() {
     printf("==> List devices:\n");
+    printf("  > Only show devices with OUI: 50:54:7B\n");
 
+    fflush(stdout);
+    freopen("/dev/null", "w", stdout);
+    fclose(stdout);
     int ret = WCHBle_BLE_Scan(BLESCAN_TIMEOUT, BleAdvertisingDeviceInfo);
+    // fclose(fp);
+    //fclose(stdout);
+    fflush(stdout);
+
     if (ret == BLE_FAILED) {
         printf("Fail to discover primary services.\n");
         exit(1);
@@ -46,22 +55,29 @@ void scanDevices() {
 }
 
 void connectToDevice(const char* mac_addr) {
+    printf("==> Connecting to device: %s\n", mac_addr);
     connection = WCHBle_Connect(mac_addr, ConnectionState);
 
-    if (connection != NULL) {
+    if (connection) {
         WCHBle_register_on_disconnect(connection,DisconnectStateCallBack);
         WCHBle_register_notification(connection, NotificationCallBack);
     }
 }
 
 void disconnectFromDevice() {
-    if (connection != NULL) {
+    if (connection) {
         WCHBle_Disconnect(connection);
     }
 }
 
 void BleAdvertisingDeviceInfo(const char *addr, const char *name, int8_t rssi) {
-    printf("--> %s ( %d) %s\n", addr, rssi, name);
+    char OUI[8];
+
+    strncpy(OUI,addr,8);
+
+    if (strcmp("50:54:7B",OUI) == 0) {
+        printf("--> MAC: %s Name: %s RSSI: %d dBm\n", addr, name, rssi);
+    }
 }
 
 void ConnectionState(WCHBLEHANDLE *connection, int state) {
@@ -72,9 +88,8 @@ void ConnectionState(WCHBLEHANDLE *connection, int state) {
 }
 
 void DisconnectStateCallBack(void *arg) {
-    if (connection) {
+    if (connection)
         WCHBle_Disconnect(connection);
-    }
 }
 
 void NotificationCallBack(const uuid_t *uuid, const uint8_t *data, size_t data_length){
@@ -110,9 +125,7 @@ void discoverServices() {
     int services_count;
     char uuid_str[MAX_LEN_UUID_STR+1];
     int ret;
-    sleep(2);
     ret = WCHBle_Discover_Primary(connection, services, &services_count);
-    sleep(2);
     printf("==> Services: %d\n", services_count);
     
     if (services_count == 0) {
