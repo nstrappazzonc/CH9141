@@ -11,16 +11,6 @@ extern "C" {
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 
-typedef struct _gatt_connection_t WCHBLEHANDLE;
-//回调函数
-typedef void(*FunConnectionStateCallBack)(WCHBLEHANDLE* connection,int state);
-
-typedef void (*FunRegisterNotifyCallBack)(const uuid_t* uuid, const uint8_t* data, size_t data_length);
-
-typedef void(*FunDisconnectionStateCallBack)(void* user_data);
-
-typedef void (*FunDiscoverDeviceAdvInfo)(const char* addr, const char* name, int8_t rssi);
-
 typedef struct {
 	uint16_t  attr_handle_start; 
 	uint16_t  attr_handle_end;   
@@ -33,6 +23,16 @@ typedef struct {
 	uint8_t   properties;    
 	uuid_t    uuid;          
 } GattCharacteristic;
+
+typedef struct _gatt_connection_t WCHBLEHANDLE;
+
+typedef void(*FunConnectionStateCallBack)(WCHBLEHANDLE* connection,int state);
+
+typedef void (*FunRegisterNotifyCallBack)(const uuid_t* uuid, const uint8_t* data, size_t data_length);
+
+typedef void(*FunDisconnectionStateCallBack)(void* user_data);
+
+typedef void (*FunDiscoverDeviceAdvInfo)(const char* addr, const char* name, int8_t rssi);
 
 int WCHBLEGetBluetoothVer();
 
