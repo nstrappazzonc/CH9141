@@ -8,7 +8,7 @@ help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 clean: ## Remove compiled files.
-	rm main
+	rm -f main
 
 build: ## Compile source code.
 	g++ main.c -L$(PWD)/WCHBLElib/ -Wl,-rpath=$(PWD)/WCHBLElib -lbluetooth -lWCHBLElib -o main
