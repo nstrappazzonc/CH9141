@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <ctype.h>
 #include <string.h>
 #include <time.h>
 
@@ -10,7 +7,8 @@
 
 #define BLESCAN_TIMEOUT 3
 #define BLE_SUCCESS     0
-#define BLE_FAILED      1
+
+WCHBLEHANDLE *connection = NULL;
 
 static void BleAdvertisingDeviceInfo(const char* addr, const char* name, int8_t rssi);
 static void ConnectionState(WCHBLEHANDLE *connection, int state);
@@ -20,10 +18,7 @@ static void getBleVer();
 static void ConnectionInit();
 static void discoverServices();
 
-WCHBLEHANDLE *connection = NULL;
-
 int main() {
-    
     printf("==> List devices:\n");
 
     int ret = 0;
@@ -59,17 +54,16 @@ void BleAdvertisingDeviceInfo(const char *addr, const char *name, int8_t rssi) {
 void ConnectionState(WCHBLEHANDLE *connection, int state) {
     if (connection) {
         printf("==> Connect OK!\n");
-        ConnectionInit();
-        //getBleVer();
+        getBleVer();
     }
     else
         printf("==> Connect failed!\n");
 }
 
 void DisconnectStateCallBack(void *arg) {
-        if (connection) {
+    if (connection) {
         printf("==> Callback to disconnect.\n");
-                WCHBle_Disconnect(connection);
+        WCHBle_Disconnect(connection);
     }
 }
 
@@ -89,20 +83,14 @@ void getBleVer() {
     printf("==> Version x: %d\n", ver);
 }
 
-void ConnectionInit() {
-    getBleVer();
-}
-
 char* format_to_char(int value) {
-    // Reservar memoria para la cadena (ejemplo: 4 dígitos hexadecimales + 1 para el carácter nulo)
-    char *buffer = (char *)malloc(5 * sizeof(char)); // 4 caracteres + 1 para el nulo
+    char *buffer = (char *)malloc(5 * sizeof(char));
 
     if (buffer != NULL) {
-        // Usar snprintf para formatear el número en hexadecimal
-        snprintf(buffer, 5, "%04x", value); // Formato a 4 dígitos
+        snprintf(buffer, 5, "%04x", value);
     }
 
-    return buffer; // Retorna el buffer (debes liberar la memoria después de usarlo)
+    return buffer;
 }
 
 void discoverServices() {
@@ -121,6 +109,7 @@ void discoverServices() {
     
     if (ret != BLE_SUCCESS) {
         printf("Fail to discover primary services.\n");
+        exit(1);
     }
 
     for (int i = 0; i < services_count; i++) {
@@ -141,7 +130,6 @@ void discoverServices() {
                     printf("----> characteristic[%d] properties:0x%02x handle:0x%04x uuid:%s\n", y, characteristics[y].properties, characteristics[y].handle, uuid_str2);
             }
     }
-    
     
     for (int i = 0; i < 10; i++) {
         char time_str[21];
