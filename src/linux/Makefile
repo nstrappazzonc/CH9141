@@ -1,3 +1,7 @@
+.PHONY: all
 
+clean:
+	rm main
 
-g++ main.c -L$PWD/WCHBLElib/ -Wl,-rpath=$PWD/WCHBLElib -lbluetooth -lWCHBLElib -o main
+build:
+	g++ main.c -L$PWD/WCHBLElib/ -Wl,-rpath=$PWD/WCHBLElib -lbluetooth -lWCHBLElib -o main
