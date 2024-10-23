@@ -7,6 +7,7 @@
 
 #define BLESCAN_TIMEOUT 3
 #define BLE_SUCCESS     0
+#define BLE_FAILED      1
 
 WCHBLEHANDLE *connection = NULL;
 
@@ -14,37 +15,49 @@ static void BleAdvertisingDeviceInfo(const char* addr, const char* name, int8_t 
 static void ConnectionState(WCHBLEHANDLE *connection, int state);
 static void DisconnectStateCallBack(void *arg);
 static void NotificationCallBack(const uuid_t* uuid, const uint8_t* data, size_t data_length);
-static void getBleVer();
-static void ConnectionInit();
+static void versionOfDevice();
+static void scanDevices();
+static void connectToDevice(const char* mac_addr);
+static void disconnectFromDevice();
 static void discoverServices();
+static void writeToDevice();
 
 int main() {
+	scanDevices();
+	connectToDevice("50:54:7B:69:49:65");
+	
+	versionOfDevice();
+	
+    discoverServices();
+    writeToDevice();
+    disconnectFromDevice();
+
+    return 0;
+}
+
+void scanDevices() {
     printf("==> List devices:\n");
 
-    int ret = 0;
-    ret = WCHBle_BLE_Scan(BLESCAN_TIMEOUT, BleAdvertisingDeviceInfo);
-//     printf("%d\n", ret); 
+    int ret = WCHBle_BLE_Scan(BLESCAN_TIMEOUT, BleAdvertisingDeviceInfo);
+    if (ret == BLE_FAILED) {
+        printf("Fail to discover primary services.\n");
+        exit(1);
+    }
+}
 
-    char *mac_addr = NULL;
-    mac_addr = (char *)malloc(18 * sizeof(char));
-    strcpy(mac_addr, "50:54:7B:69:49:65");
+void connectToDevice(const char* mac_addr) {
     connection = WCHBle_Connect(mac_addr, ConnectionState);
 
-    if (connection == NULL) {
-    } else {
+    if (connection != NULL) {
         WCHBle_register_on_disconnect(connection,DisconnectStateCallBack);
         WCHBle_register_notification(connection, NotificationCallBack);
     }
+}
 
-    discoverServices();
-
+void disconnectFromDevice() {
     if (connection != NULL) {
         WCHBle_Disconnect(connection);
     }
-
-    sleep(3);
-
-    return 0;
 }
 
 void BleAdvertisingDeviceInfo(const char *addr, const char *name, int8_t rssi) {
@@ -52,35 +65,34 @@ void BleAdvertisingDeviceInfo(const char *addr, const char *name, int8_t rssi) {
 }
 
 void ConnectionState(WCHBLEHANDLE *connection, int state) {
-    if (connection) {
+    if (connection)
         printf("==> Connect OK!\n");
-        getBleVer();
-    }
     else
         printf("==> Connect failed!\n");
 }
 
 void DisconnectStateCallBack(void *arg) {
     if (connection) {
-        printf("==> Callback to disconnect.\n");
         WCHBle_Disconnect(connection);
     }
 }
 
 void NotificationCallBack(const uuid_t *uuid, const uint8_t *data, size_t data_length){
+	printf("--> ");
     for (size_t i = 0; i < data_length; i++) {
         printf("%c", data[i]);
     }
     printf("\n");
 }
 
-void getBleVer() {
+void versionOfDevice() {
     const char *VER_ARRAY[] = {"V1.0", "V1.1", "V1.2", "V2.0", "V2.1", "V3.0", "V4.0", "V4.1", "V4.2", "V5.0", "V5.1", "V5.2"};
     int ver = WCHBLEGetBluetoothVer();
-    if(ver >= 0 && ver < sizeof(VER_ARRAY)/sizeof(VER_ARRAY[0])) {
-        printf("==> Version: %s\n", VER_ARRAY[ver]);
-    }
-    printf("==> Version x: %d\n", ver);
+    
+    if(ver >= 0 && ver < sizeof(VER_ARRAY)/sizeof(VER_ARRAY[0]))
+        printf("==> Device version: %s\n", VER_ARRAY[ver]);
+    else
+	    printf("==> Device code version: %d\n", ver);
 }
 
 char* format_to_char(int value) {
@@ -100,6 +112,7 @@ void discoverServices() {
     int ret;
     sleep(2);
     ret = WCHBle_Discover_Primary(connection, services, &services_count);
+    sleep(2);
     printf("==> Services: %d\n", services_count);
     
     if (services_count == 0) {
@@ -127,10 +140,19 @@ void discoverServices() {
                     char uuid_str2[MAX_LEN_UUID_STR+1];
                     Gatt_UUID_to_Str(&characteristics[y].uuid, uuid_str2, sizeof(uuid_str2));
 
-                    printf("----> characteristic[%d] properties:0x%02x handle:0x%04x uuid:%s\n", y, characteristics[y].properties, characteristics[y].handle, uuid_str2);
+					ret = WCHBle_Open_Notification(connection, uuid_str2);
+					if (ret != BLE_SUCCESS)
+			            printf("Open notification failed.\n");
+        			else
+                    	printf("----> characteristic[%d] properties:0x%02x handle:0x%04x uuid:%s\n", y, characteristics[y].properties, characteristics[y].handle, uuid_str2);
             }
     }
-    
+}
+
+void discoverCharacteristics() {
+}
+
+void writeToDevice() {
     for (int i = 0; i < 10; i++) {
         char time_str[21];
         time_t now = time(NULL);
