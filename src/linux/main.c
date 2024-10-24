@@ -40,13 +40,20 @@ void scanDevices() {
     printf("==> List devices:\n");
     printf("  > Only show devices with OUI: 50:54:7B\n");
 
-    fflush(stdout);
-    freopen("/dev/null", "w", stdout);
-    fclose(stdout);
+    // fflush(stdout);
+    // freopen("/dev/null", "w", stdout);
+    // fclose(stdout);
+    // Guardar el stdout original
+    int saved_stdout = dup(STDOUT_FILENO);
+
+    // Redirigir stdout temporalmente
+    suppress_stdout();
+
     int ret = WCHBle_BLE_Scan(BLESCAN_TIMEOUT, BleAdvertisingDeviceInfo);
     // fclose(fp);
     //fclose(stdout);
-    fflush(stdout);
+    // fflush(stdout);
+    restore_stdout(saved_stdout);
 
     if (ret == BLE_FAILED) {
         printf("Fail to discover primary services.\n");
@@ -177,4 +184,16 @@ void writeToDevice() {
     
         sleep(1);
     }
+}
+
+void suppress_stdout() {
+    fflush(stdout); // Asegurarse de que no haya datos pendientes de impresión
+    int fd = open("/dev/null", O_WRONLY); // Abrir /dev/null para descartar la salida
+    dup2(fd, STDOUT_FILENO); // Redirigir stdout a /dev/null
+    close(fd); // Cerrar el descriptor de archivo
+}
+
+void restore_stdout(int saved_stdout) {
+    fflush(stdout);
+    dup2(saved_stdout, STDOUT_FILENO); // Restaurar stdout al original
 }
