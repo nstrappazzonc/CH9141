@@ -20,7 +20,6 @@ typedef struct {
 void BleAdvertisingDeviceInfo(const char* addr, const char* name, int8_t rssi);
 void ConnectionState(WCHBLEHANDLE *connection, int state);
 void DisconnectStateCallBack(void *arg);
-void NotificationCallBack(const uuid_t* uuid, const uint8_t* data, size_t data_length);
 void versionOfDevice();
 void scanDevices();
 void listDevices();
@@ -28,7 +27,6 @@ void connectToDevice(const char* mac_addr);
 void disconnectFromDevice();
 void discoverServices();
 void discoverCharacteristics(int);
-void getActionSlot();
 void writeToDevice();
 
 #endif // BLE_H

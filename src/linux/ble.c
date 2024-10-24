@@ -53,7 +53,6 @@ void connectToDevice(const char* mac_addr) {
 
     if (connection) {
         WCHBle_register_on_disconnect(connection,DisconnectStateCallBack);
-        WCHBle_register_notification(connection, NotificationCallBack);
     }
 }
 
@@ -87,14 +86,6 @@ void DisconnectStateCallBack(void *arg) {
     disconnectFromDevice();
 }
 
-void NotificationCallBack(const uuid_t *uuid, const uint8_t *data, size_t data_length){
-    printf("--> ");
-    for (size_t i = 0; i < data_length; i++) {
-        printf("%c", data[i]);
-    }
-    printf("\n");
-}
-
 void versionOfDevice() {
     const char *VER_ARRAY[] = {"V1.0", "V1.1", "V1.2", "V2.0", "V2.1", "V3.0", "V4.0", "V4.1", "V4.2", "V5.0", "V5.1", "V5.2"};
     int saved_stdout = dup(STDOUT_FILENO);
@@ -110,18 +101,17 @@ void versionOfDevice() {
 
 
 void discoverServices() {
-    int ret;
-    ret = WCHBle_Discover_Primary(connection, services, &services_count);
+    int ret = WCHBle_Discover_Primary(connection, services, &services_count);
     printf("==> Services: %d\n", services_count);
     
     if (services_count == 0) {
         printf("  > Services is empty, abort.\n");
-        exit(1);
+        return;
     }
     
     if (ret != BLE_SUCCESS) {
         printf("  > Fail to discover primary services, abort.\n");
-        exit(1);
+        return;
     }
 
     for (int i = 0; i < services_count; i++) {
@@ -130,41 +120,39 @@ void discoverServices() {
 }
 
 void discoverCharacteristics(int service_index) {
-    char uuid_str[MAX_LEN_UUID_STR+1];
+    char uuid_str[MAX_LEN_UUID_STR+1] = {0};
     char *handle = format_to_char(services[service_index].attr_handle_start);
-    int ret;
 
     Gatt_UUID_to_Str(&services[service_index].uuid, uuid_str, sizeof(uuid_str));
 
-    ret = WCHBle_Discover_Characteristics(connection, handle, characteristics, &characteristics_count);
+    int ret = WCHBle_Discover_Characteristics(connection, handle, characteristics, &characteristics_count);
     if (ret != BLE_SUCCESS) {
         printf("  > Fail to discover characteristics.\n");
-        exit(1);
-    }
-}
-
-void getActionSlot() {
-    char uuid_str[MAX_LEN_UUID_STR+1] = {0};
-
-    for (int y = 0; y < characteristics_count; y++) {
-        Gatt_UUID_to_Str(&characteristics[y].uuid, uuid_str, sizeof(uuid_str));
-
-        // ret = WCHBle_Open_Notification(connection, uuid_str2);
-        // // if (ret != BLE_SUCCESS)
-        // //     // printf("Open notification failed.\n");
-        // // else
-        printf("--> characteristic[%d] properties:0x%02x handle:0x%04x uuid:%s\n", y, characteristics[y].properties, characteristics[y].handle, uuid_str);
+        return;
     }
 }
 
 void writeToDevice() {
+    if (characteristics_count == 0)
+        return;
+
+    printf("==> Send UART message:\n");
+
     for (int i = 0; i < 10; i++) {
-        char time_str[21];
+        char time_str[100] = { 0 };
         time_t now = time(NULL);
         struct tm *local = localtime(&now);
-        snprintf(time_str, sizeof(time_str), "Host time: %02d:%02d:%02d\n", local->tm_hour, local->tm_min, local->tm_sec);
+        snprintf(time_str, sizeof(time_str),
+            "Host date & times: %04d-%02d-%02d %02d:%02d:%02d\n",
+            local->tm_year + 1900,
+            local->tm_mon + 1,
+            local->tm_mday,
+            local->tm_hour,
+            local->tm_min,
+            local->tm_sec);
 
         size_t buf_len = sizeof(time_str);
+        printf("--> %s", time_str);
         WCHBle_Write_Characteristic(connection, "0xfff2", true, time_str, buf_len);
     
         sleep(1);
