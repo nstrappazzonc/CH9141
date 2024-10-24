@@ -27,6 +27,8 @@ void listDevices();
 void connectToDevice(const char* mac_addr);
 void disconnectFromDevice();
 void discoverServices();
+void discoverCharacteristics(int);
+void getActionSlot();
 void writeToDevice();
 
 #endif // BLE_H

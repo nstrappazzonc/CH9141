@@ -6,8 +6,8 @@ int main() {
     listDevices();
 	connectToDevice("50:54:7B:69:49:65");
 	versionOfDevice();
-	
-    // discoverServices();
+    discoverServices();
+    getActionSlot();
     // writeToDevice();
     disconnectFromDevice();
 
